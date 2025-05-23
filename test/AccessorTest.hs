@@ -25,6 +25,13 @@ testListSet_3 = TestCase (assertEqual "list set 3" expect result) where
     in over (_1 #> self) (+1) lst
   expect = [[1,2,3],[5,6,7],[7,8,9]]
 
+testListSet_4 :: Test
+testListSet_4 = TestCase (assertEqual "list set 4" expect result) where
+  result =
+    let lst = [[[1,2,3],[4,5,6],[7,8,9]]] :: [[[Int]]]
+    in set (_0 # _1 # _1) 42 lst
+  expect = [[[1,2,3],[4,42,6],[7,8,9]]]
+
 testTuple_1 :: Test
 testTuple_1 = TestCase (assertEqual "tuple 1" expect result) where
   result  = view (self #> sndAcc) $ Just (1 :: Int, 42 :: Int)

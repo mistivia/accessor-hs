@@ -15,7 +15,7 @@ module Accessor
     )
 where
 
-type Accessor s a r = (a -> a) -> s -> (s, r)
+type Accessor s w r = (w -> w) -> s -> (s, r)
 
 accessor :: (s -> a) -> (a -> s -> s) -> Accessor s a a
 accessor getter setter f x = (setter newVal x, getter x) where
@@ -33,7 +33,7 @@ set acc x = over acc (const x)
 infixr #
 
 (#) ::
-    Accessor obj middle middle -> Accessor middle end end -> Accessor obj end end
+    Accessor s1 a1 a1 -> Accessor a1 w2 r -> Accessor s1 w2 r
 (#) = composeAccessors where
   composeAccessors ac1 ac2 modifier obj =
     (newObj, value)
@@ -92,3 +92,4 @@ sndAcc :: Accessor (a, b) b b
 sndAcc = accessor getter setter where
     getter (_, b) = b
     setter n x = (fst x, n)
+
