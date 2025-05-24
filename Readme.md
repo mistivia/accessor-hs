@@ -4,42 +4,51 @@ After trying very hard, I have to admit that my mind is too weak to understand l
 
 To get started:
 
-    import Accessor
+```haskell
+import Accessor
+```
 
 An accessor is a getter with a setter.
 
 For record fields, the accessors are defined as follows:
 
-    data Point = Point {_x :: Int, _y :: Int}
-    
-    x = accessor _x (\elem record -> record {x = elem})
-    y = accessor _y (\elem record -> record {y = elem})
+```haskell
+data Point = Point {_x :: Int, _y :: Int}
+
+x = accessor _x (\elem record -> record {x = elem})
+y = accessor _y (\elem record -> record {y = elem})
+```
 
 With an accessor, you can view, set, and transform data of the record:
 
-    point = Point 1 2
-    view x point -- 1
-    set x 3 point -- Point 3 2
-    over x (+1) point -- Point 2 2
+```haskell
+point = Point 1 2
+view x point -- 1
+set x 3 point -- Point 3 2
+over x (+1) point -- Point 2 2
+```
 
 For a nested record, accessors can be composed using `(#)`:
 
-    data Line = Line {_start :: Point, _end :: Point}
-    start = accessor _start (\elem record -> record {_start = elem})
-    end = accessor _end (\elem record -> record {_end = elem})
-    
+```haskell
+data Line = Line {_start :: Point, _end :: Point}
+start = accessor _start (\elem record -> record {_start = elem})
+end = accessor _end (\elem record -> record {_end = elem})
 
-    data Point = Point {_x :: Int, _y :: Int}
-    x = accessor _x (\elem record -> record {_x = elem})
-    y = accessor _y (\elem record -> record {_y = elem})
 
-    line = Line (Point 1 2) (Point 3 4)
+data Point = Point {_x :: Int, _y :: Int}
+x = accessor _x (\elem record -> record {_x = elem})
+y = accessor _y (\elem record -> record {_y = elem})
 
-    start_x = view (start # x) line -- 1
-    end_y = view (end # y) line -- 4
+line = Line (Point 1 2) (Point 3 4)
+
+start_x = view (start # x) line -- 1
+end_y = view (end # y) line -- 4
+```
 
 If the field is a functor, the accessor should be composed with the next accessor using `(#>)`. For example:
 
+```haskell
     data Person = Person {_name :: String, _addr :: Maybe Address }
     name = accessor _name (\elem record -> record {_name = elem}) 
     addr= accessor _addr (\elem record -> record {_addr = elem}) 
@@ -50,30 +59,37 @@ If the field is a functor, the accessor should be composed with the next accesso
 
 Let there be Alice living in Shanghai:
 
-    alice = Person
-      { _name = "Alice"
-      , _addr = Just Address
-        { _detail = "Shanghai"
-        , _code = "200000"
-        }
-      }
+```haskell
+alice = Person
+  { _name = "Alice"
+  , _addr = Just Address
+    { _detail = "Shanghai"
+    , _code = "200000"
+    }
+  }
+```
 
 You can view/modify Alice's address detail:
 
-    s = view (addr #> detail) alice -- Just "Shanghai"
+```haskell
+s = view (addr #> detail) alice -- Just "Shanghai"
+```
 
 The use of `fmap` inside of `(#>)` ensures that `Nothing` is handled properly.
 
 Accessor of the nth element of a list is `listAt n`, and for 0 to 9, there are shortcuts: `_0` to `_9`.
 
-    view _1 [1,2,3] -- 2
-    view (_1 # _1) [[1,2,3], [4,5,6]] -- 5
-    set _0 42 [1,2,3] -- [42,2,3]
-    over _1 (+1) [1,2,3] -- [1,3,3]
+```haskell
+view _1 [1,2,3] -- 2
+view (_1 # _1) [[1,2,3], [4,5,6]] -- 5
+set _0 42 [1,2,3] -- [42,2,3]
+over _1 (+1) [1,2,3] -- [1,3,3]
+```
 
 Lists are also functors, so you can `fmap` over it using `(#>)`, which is the same as `map`:
 
-    over (self #> self) (+1) [1,2,3] -- [2,3,4]
-    over (_1 #> self) (+1) [[1,2], [3,4]] -- [[1,2],[4,5]]
-
+```haskell
+over (self #> self) (+1) [1,2,3] -- [2,3,4]
+over (_1 #> self) (+1) [[1,2], [3,4]] -- [[1,2],[4,5]]
+```
 
