@@ -55,7 +55,8 @@ If the field is a functor, the accessor should be composed with the next accesso
 
     data Address = Address {_detail :: String, _code :: String }
     detail = accessor _detail (\elem record -> record {_detail = elem}) 
-    code = accessor _code (\elem record -> record {_code = elem}) 
+    code = accessor _code (\elem record -> record {_code = elem})
+```
 
 Let there be Alice living in Shanghai:
 
