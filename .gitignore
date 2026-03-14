@@ -1,1 +1,7 @@
 dist-newstyle
+.bashrc
+.inputrc
+.Xauthority
+fetcher-cache-v4.sqlite
+.cache
+result
