@@ -113,6 +113,12 @@ recordTests =
         result = view (address #> zipInfos #> self #> code) newAlice
         expect = Just [Just "200000uwu", Just "200002uwu"]
       in TestCase (assertEqual tname expect result)
+    , let
+        tname = "fdot"
+        newAlice = over (fdot address $ fdot zipInfos $ fdot self code) (++ "uwu") alice
+        result = view (address #> zipInfos #> self #> code) newAlice
+        expect = Just [Just "200000uwu", Just "200002uwu"]
+      in TestCase (assertEqual tname expect result)
     ]
 
 main :: IO ()

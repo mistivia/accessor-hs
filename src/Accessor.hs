@@ -12,6 +12,7 @@ module Accessor
     , self
     , _0, _1, _2, _3, _4
     , _5, _6, _7, _8, _9
+    , dot, fdot
     )
 where
 
@@ -41,6 +42,9 @@ infixr #
       newObj = over ac1 (over ac2 modifier) obj
       value = view ac2 (view ac1 obj)
 
+dot :: Accessor s1 a1 a1 -> Accessor a1 w2 r -> Accessor s1 w2 r
+dot a b = a # b
+
 infixr #>
 
 (#>) :: (Functor f) =>
@@ -52,6 +56,11 @@ infixr #>
     where
       newObj = over ac1 (fmap $ over ac2 modifier) obj
       value = fmap (view ac2) (view ac1 obj)
+
+fdot :: (Functor f) =>
+    Accessor obj (f middle) (f middle) -> Accessor middle end result
+    -> Accessor obj end (f result)
+fdot a b = a #> b
 
 self :: Accessor a a a
 self = accessor id const 
@@ -92,4 +101,3 @@ sndAcc :: Accessor (a, b) b b
 sndAcc = accessor getter setter where
     getter (_, b) = b
     setter n x = (fst x, n)
-
