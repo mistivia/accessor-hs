@@ -1,6 +1,6 @@
 module Main where
 
-import Accessor
+import Data.Accessor
 import Test.HUnit
 import System.Exit
 

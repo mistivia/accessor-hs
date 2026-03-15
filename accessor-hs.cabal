@@ -23,7 +23,7 @@ common warnings
 library
     import:           warnings
 
-    exposed-modules:  Accessor
+    exposed-modules:  Data.Accessor
     build-depends:    base
 
     hs-source-dirs:   src

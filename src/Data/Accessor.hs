@@ -1,4 +1,4 @@
-module Accessor
+module Data.Accessor
     ( accessor
     , Accessor
     , view

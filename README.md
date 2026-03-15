@@ -5,7 +5,7 @@ After trying very hard, I have to admit that my mind is too weak to understand l
 To get started:
 
 ```hs
-import Accessor
+import Data.Accessor
 ```
 
 An accessor is a getter with a setter.
