@@ -46,16 +46,16 @@ start_x = view (dot start x) line -- 1
 end_y = view (dot end y) line -- 4
 ```
 
-If the field is a functor, the accessor should be composed with the next accessor using `fdot`. For example:
+If the field is a functor, the accessor should be composed with the next accessor using `facc`. For example:
 
 ```hs
-data Person = Person {_name :: String, _addr :: Maybe Address }
-name = accessor _name (\elem record -> record {_name = elem}) 
-addr= accessor _addr (\elem record -> record {_addr = elem}) 
-
 data Address = Address {_detail :: String, _code :: String }
 detail = accessor _detail (\elem record -> record {_detail = elem}) 
 code = accessor _code (\elem record -> record {_code = elem}) 
+
+data Person = Person {_name :: String, _addr :: Maybe Address }
+name = accessor _name (\elem record -> record {_name = elem}) 
+addr= accessor _addr (\elem record -> record {_addr = elem}) 
 ```
 
 Let there be Alice living in Shanghai:
@@ -73,10 +73,10 @@ alice = Person
 You can view/modify Alice's address detail:
 
 ```hs
-s = view (fdot addr detail) alice -- Just "Shanghai"
+s = view (dot addr $ facc detail) alice -- Just "Shanghai"
 ```
 
-The use of `fmap` inside of `fdot` ensures that `Nothing` is handled properly.
+The use of `fmap` inside of `facc` ensures that `Nothing` is handled properly.
 
 Accessor of the nth element of a list is `listAt n`, and for 0 to 9, there are shortcuts: `_0` to `_9`.
 
@@ -87,9 +87,9 @@ set _0 42 [1,2,3] -- [42,2,3]
 over _1 (+1) [1,2,3] -- [1,3,3]
 ```
 
-Lists are also functors, so you can `fmap` over it using `fdot`, which is the same as `map`:
+Lists are also functors, so you can `fmap` over it using `facc`, which is the same as `map`:
 
 ```hs
-over (fdot self self) (+1) [1,2,3] -- [2,3,4]
-over (fdot _1 self) (+1) [[1,2], [3,4]] -- [[1,2],[4,5]]
+over (facc self) (+1) [1,2,3] -- [2,3,4]
+over (dot _1 $ facc self) (+1) [[1,2], [3,4]] -- [[1,2],[4,5]]
 ```

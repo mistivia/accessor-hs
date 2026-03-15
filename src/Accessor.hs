@@ -4,15 +4,13 @@ module Accessor
     , view
     , over
     , set
-    , (#)
-    , (#>)
     , listAcc
     , fstAcc
     , sndAcc
     , self
     , _0, _1, _2, _3, _4
     , _5, _6, _7, _8, _9
-    , dot, fdot
+    , dot, facc
     )
 where
 
@@ -31,39 +29,22 @@ over acc f = fst . acc f
 set :: Accessor s a b ->  a -> s -> s
 set acc x = over acc (const x)
 
-infixr #
-
-(#) ::
-    Accessor s1 a1 a1 -> Accessor a1 w2 r -> Accessor s1 w2 r
-(#) = composeAccessors where
-  composeAccessors ac1 ac2 modifier obj =
+dot :: Accessor s1 a1 a1 -> Accessor a1 w2 r -> Accessor s1 w2 r
+dot ac1 ac2 modifier obj =
     (newObj, value)
     where
       newObj = over ac1 (over ac2 modifier) obj
       value = view ac2 (view ac1 obj)
 
-dot :: Accessor s1 a1 a1 -> Accessor a1 w2 r -> Accessor s1 w2 r
-dot a b = a # b
-
-infixr #>
-
-(#>) :: (Functor f) =>
-    Accessor obj (f middle) (f middle) -> Accessor middle end result
-    -> Accessor obj end (f result)
-(#>) = composeFunctorAccesors where
-  composeFunctorAccesors ac1 ac2 modifier obj =
-    (newObj, value)
-    where
-      newObj = over ac1 (fmap $ over ac2 modifier) obj
-      value = fmap (view ac2) (view ac1 obj)
-
-fdot :: (Functor f) =>
-    Accessor obj (f middle) (f middle) -> Accessor middle end result
-    -> Accessor obj end (f result)
-fdot a b = a #> b
-
 self :: Accessor a a a
 self = accessor id const 
+
+facc :: Functor f => Accessor middle updated toRead -> Accessor (f middle) updated (f toRead)
+facc acc modifier obj =
+    (newObj, value)
+    where
+        newObj = fmap (over acc modifier) obj
+        value = fmap (view acc) obj
 
 listAcc :: Int -> Accessor [a] a a
 listAcc idx = accessor getter setter where
