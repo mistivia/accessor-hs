@@ -1,6 +1,6 @@
 # Accessor
 
-After trying very hard, I have to admit that my mind is too weak to understand lens. So I decided to roll my own data access library with no fancy categories but only getters, setters and fmaps chained together. 
+Very naive lens-like library.
 
 To get started:
 
