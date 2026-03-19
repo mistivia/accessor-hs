@@ -1,6 +1,8 @@
 module Data.Accessor
     ( accessor
     , Accessor
+    , accessorf
+    , Accessorf
     , view
     , over
     , set
@@ -38,6 +40,11 @@ dot ac1 ac2 modifier obj =
     where
       newObj = over ac1 (over ac2 modifier) obj
       value = view ac2 (view ac1 obj)
+
+accessorf :: (s1 -> a1) -> (a1 -> s1 -> s1) -> Accessor a1 w2 r -> Accessor s1 w2 r
+accessorf a b = dot $ accessor a b
+
+type Accessorf s1 a1 = forall w2 r. Accessor a1 w2 r -> Accessor s1 w2 r
 
 type AppliedToSelf f a = (Accessor a a a -> f)
 
