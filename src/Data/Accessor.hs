@@ -4,6 +4,9 @@ module Data.Accessor
     , view
     , over
     , set
+    , viewf
+    , overf
+    , setf
     , listAcc
     , fstAcc
     , sndAcc
@@ -36,8 +39,19 @@ dot ac1 ac2 modifier obj =
       newObj = over ac1 (over ac2 modifier) obj
       value = view ac2 (view ac1 obj)
 
+type AppliedToSelf f a = (Accessor a a a -> f)
+
 self :: Accessor a a a
 self = accessor id const 
+
+viewf :: AppliedToSelf (Accessor s a b) a -> s -> b
+viewf acc = snd . acc self id
+
+overf :: AppliedToSelf (Accessor s a b) a -> (a -> a) -> s -> s
+overf acc f = fst . acc self f
+
+setf :: AppliedToSelf (Accessor s a b) a ->  a -> s -> s
+setf acc x = over (acc self) (const x)
 
 facc :: Functor f => Accessor middle updated toRead -> Accessor (f middle) updated (f toRead)
 facc acc modifier obj =

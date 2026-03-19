@@ -15,7 +15,7 @@ testListSet_2 :: Test
 testListSet_2 = TestCase (assertEqual "list set 2" expect result) where
   result =
     let lst = [[1,2,3],[4,5,6],[7,8,9]] :: [[Int]]
-    in set (dot _1 _1) 42 lst
+    in setf (dot _1 . dot _1) 42 lst
   expect = [[1,2,3],[4,42,6],[7,8,9]]
 
 testListSet_3 :: Test
@@ -99,17 +99,17 @@ recordTests =
       in TestCase (assertEqual tname result expect)
     , let 
         tname = "record fmap view"
-        result = view (dot address $ facc city) alice
+        result = viewf (dot address .facc . dot city) alice
         expect = Just "Shanghai"
       in TestCase (assertEqual tname result expect)
     , let
         tname = "record multiple fmap view"
-        result = view (dot address $ facc $ dot zipInfos $ facc $ facc code) alice
+        result = viewf (dot address . facc . dot zipInfos . facc . facc . dot code) alice
         expect = Just [Just "200000", Just "200002"]
       in TestCase (assertEqual tname expect result)
     , let
         tname = "record multiple fmap edit"
-        newAlice =  over (dot address $ facc $ dot zipInfos $ facc $ facc code) (++ "uwu") alice
+        newAlice =  overf (dot address . facc . dot zipInfos . facc . facc . dot code) (++ "uwu") alice
         result = view (dot address $ facc $ dot zipInfos $ facc $ facc code) newAlice
         expect = Just [Just "200000uwu", Just "200002uwu"]
       in TestCase (assertEqual tname expect result)
