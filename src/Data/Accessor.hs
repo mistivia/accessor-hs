@@ -1,87 +1,79 @@
 module Data.Accessor
     ( accessor
     , Accessor
-    , accessorf
-    , Accessorf
+    , AccessorImpl
     , view
     , over
     , set
-    , viewf
-    , overf
-    , setf
     , listAcc
     , fstAcc
     , sndAcc
-    , self
     , _0, _1, _2, _3, _4
     , _5, _6, _7, _8, _9
-    , dot, facc
+    , facc
     )
 where
 
-type Accessor s w r = (w -> w) -> s -> (s, r)
+type AccessorImpl s w r = (w -> w) -> s -> (s, r)
 
-accessor :: (s -> a) -> (a -> s -> s) -> Accessor s a a
-accessor getter setter f x = (setter newVal x, getter x) where
+accessorImpl :: (s -> a) -> (a -> s -> s) -> AccessorImpl s a a
+accessorImpl getter setter f x = (setter newVal x, getter x) where
   newVal = f (getter x)
 
-view :: Accessor s a b -> s -> b
-view acc = snd . acc id
+viewImpl :: AccessorImpl s a b -> s -> b
+viewImpl acc = snd . acc id
 
-over :: Accessor s a b -> (a -> a) -> s -> s
-over acc f = fst . acc f
+overImpl :: AccessorImpl s a b -> (a -> a) -> s -> s
+overImpl acc f = fst . acc f
 
-set :: Accessor s a b ->  a -> s -> s
-set acc x = over acc (const x)
-
-dot :: Accessor s1 a1 a1 -> Accessor a1 w2 r -> Accessor s1 w2 r
+dot :: AccessorImpl s1 a1 a1 -> AccessorImpl a1 w2 r -> AccessorImpl s1 w2 r
 dot ac1 ac2 modifier obj =
     (newObj, value)
     where
-      newObj = over ac1 (over ac2 modifier) obj
-      value = view ac2 (view ac1 obj)
+      newObj = overImpl ac1 (overImpl ac2 modifier) obj
+      value = viewImpl ac2 (viewImpl ac1 obj)
 
-accessorf :: (s1 -> a1) -> (a1 -> s1 -> s1) -> Accessor a1 w2 r -> Accessor s1 w2 r
-accessorf a b = dot $ accessor a b
+accessor :: (s1 -> a1) -> (a1 -> s1 -> s1) -> AccessorImpl a1 w2 r -> AccessorImpl s1 w2 r
+accessor a b = dot $ accessorImpl a b
 
-type Accessorf s1 a1 = forall w2 r. Accessor a1 w2 r -> Accessor s1 w2 r
+type Accessor s1 a1 = forall w2 r. AccessorImpl a1 w2 r -> AccessorImpl s1 w2 r
 
-type AppliedToSelf f a = (Accessor a a a -> f)
+type AppliedToSelf f a = (AccessorImpl a a a -> f)
 
-self :: Accessor a a a
-self = accessor id const 
+self :: AccessorImpl a a a
+self = accessorImpl id const
 
-viewf :: AppliedToSelf (Accessor s a b) a -> s -> b
-viewf acc = snd . acc self id
+view :: AppliedToSelf (AccessorImpl s a b) a -> s -> b
+view acc = snd . acc self id
 
-overf :: AppliedToSelf (Accessor s a b) a -> (a -> a) -> s -> s
-overf acc f = fst . acc self f
+over :: AppliedToSelf (AccessorImpl s a b) a -> (a -> a) -> s -> s
+over acc f = fst . acc self f
 
-setf :: AppliedToSelf (Accessor s a b) a ->  a -> s -> s
-setf acc x = over (acc self) (const x)
+set :: AppliedToSelf (AccessorImpl s a b) a ->  a -> s -> s
+set acc x = overImpl (acc self) (const x)
 
-facc :: Functor f => Accessor middle updated toRead -> Accessor (f middle) updated (f toRead)
+facc :: Functor f => AccessorImpl middle updated toRead -> AccessorImpl (f middle) updated (f toRead)
 facc acc modifier obj =
     (newObj, value)
     where
-        newObj = fmap (over acc modifier) obj
-        value = fmap (view acc) obj
+        newObj = fmap (overImpl acc modifier) obj
+        value = fmap (viewImpl acc) obj
 
-listAcc :: Int -> Accessor [a] a a
+listAcc :: Int -> Accessor [a] a
 listAcc idx = accessor getter setter where
     getter = (!! max 0 idx)
     setter n lst = take idx lst ++ [n] ++ drop (idx + 1) lst
 
-_0 :: Accessor [a] a a
-_1 :: Accessor [a] a a
-_2 :: Accessor [a] a a
-_3 :: Accessor [a] a a
-_4 :: Accessor [a] a a
-_5 :: Accessor [a] a a
-_6 :: Accessor [a] a a
-_7 :: Accessor [a] a a
-_8 :: Accessor [a] a a
-_9 :: Accessor [a] a a
+_0 :: Accessor [a] a
+_1 :: Accessor [a] a
+_2 :: Accessor [a] a
+_3 :: Accessor [a] a
+_4 :: Accessor [a] a
+_5 :: Accessor [a] a
+_6 :: Accessor [a] a
+_7 :: Accessor [a] a
+_8 :: Accessor [a] a
+_9 :: Accessor [a] a
 
 _0 = listAcc 0
 _1 = listAcc 1
@@ -94,12 +86,12 @@ _7 = listAcc 7
 _8 = listAcc 8
 _9 = listAcc 9
 
-fstAcc :: Accessor (a, b) a a
+fstAcc :: Accessor (a, b) a
 fstAcc = accessor getter setter where
     getter (a, _) = a
     setter n x = (n, snd x)
 
-sndAcc :: Accessor (a, b) b b
+sndAcc :: Accessor (a, b) b
 sndAcc = accessor getter setter where
     getter (_, b) = b
     setter n x = (fst x, n)
